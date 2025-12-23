@@ -1,0 +1,8 @@
+.wrap { display: grid; grid-template-columns: 320px 1fr; gap: 20px; margin-top: 12px; }
+.img img { width: 100%; height: 320px; object-fit: cover; border-radius: 10px; border: 1px solid #eee; }
+.author { color: #555; margin-top: 6px; }
+.desc { margin-top: 12px; }
+.meta { margin-top: 12px; color: #444; display: grid; gap: 6px; }
+.buy { margin-top: 14px; display: flex; gap: 10px; align-items: center; }
+select { padding: 8px; }
+button { padding: 10px 12px; }

@@ -1,0 +1,15 @@
+<h1>Login</h1>
+
+<div class="card">
+  <input [(ngModel)]="email" placeholder="email" />
+  <input [(ngModel)]="password" placeholder="password" type="password" />
+
+  <button (click)="submit()">Login</button>
+
+  <div class="err" *ngIf="error">{{ error }}</div>
+
+  <p class="muted">
+    Don't have an account?
+    <a routerLink="/register">Register</a>
+  </p>
+</div>

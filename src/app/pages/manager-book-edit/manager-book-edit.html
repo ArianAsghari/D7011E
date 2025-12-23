@@ -1,0 +1,31 @@
+<a routerLink="/manager/books">← Back</a>
+
+<h1>Edit Book</h1>
+
+<div *ngIf="book" class="form">
+  <label>Book Name</label>
+  <input [(ngModel)]="book.name" />
+
+  <label>Author</label>
+  <input [(ngModel)]="book.author" />
+
+  <label>Description</label>
+  <textarea [(ngModel)]="book.description"></textarea>
+
+  <label>Quantity in Stock</label>
+  <input type="number" [(ngModel)]="book.stock" />
+
+  <label>Price</label>
+  <input type="number" step="0.01" [(ngModel)]="book.price" />
+
+  <label>Release Year</label>
+  <input type="number" [(ngModel)]="book.year" />
+
+  <label>Language</label>
+  <input [(ngModel)]="book.language" />
+
+  <button (click)="save()">Update Book</button>
+
+  <div class="ok" *ngIf="msg">{{ msg }}</div>
+  <div class="err" *ngIf="err">{{ err }}</div>
+</div>

@@ -1,0 +1,28 @@
+<a routerLink="/books">← Back</a>
+
+<div *ngIf="book" class="wrap">
+  <div class="img">
+    <img *ngIf="book.image_url" [src]="book.image_url" alt="cover" />
+  </div>
+
+  <div class="info">
+    <h1>{{ book.name }}</h1>
+    <div class="author">{{ book.author }}</div>
+    <p class="desc">{{ book.description }}</p>
+
+    <div class="meta">
+      <div>Year: {{ book.year }}</div>
+      <div>Language: {{ book.language }}</div>
+      <div>{{ book.price }} USD</div>
+      <div>In Stock: {{ book.stock }}</div>
+    </div>
+
+    <div class="buy">
+      <label>Quantity</label>
+      <select [(ngModel)]="qty">
+        <option *ngFor="let n of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]" [value]="n">{{ n }}</option>
+      </select>
+      <button (click)="add()">Add to Cart</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,21 @@
+<h1>Book List</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Book Name</th>
+      <th>Author</th>
+      <th style="width: 160px"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let b of books">
+      <td>{{ b.name }}</td>
+      <td>{{ b.author }}</td>
+      <td class="actions">
+        <a class="edit" [routerLink]="['/manager/books', b.id, 'edit']">Edit</a>
+        <button class="del" (click)="del(b.id)">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>

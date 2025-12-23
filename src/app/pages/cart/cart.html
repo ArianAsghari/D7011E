@@ -1,0 +1,19 @@
+<h1>My Cart</h1>
+
+<div *ngIf="items().length === 0">Cart is empty.</div>
+
+<div class="card" *ngFor="let i of items()">
+  <div class="title">{{ i.book.name }}</div>
+  <div class="author">{{ i.book.author }}</div>
+  <div>Language: {{ i.book.language }}</div>
+  <div>{{ i.book.year }}</div>
+  <div>Quantity: {{ i.quantity }}</div>
+  <div>Price: {{ (i.book.price * i.quantity) | number:'1.2-2' }} USD</div>
+
+  <button class="remove" (click)="remove(i.book.id)">Remove</button>
+</div>
+
+<div class="footer" *ngIf="items().length > 0">
+  <div class="sum">Total: {{ total() | number:'1.2-2' }} USD</div>
+  <button class="purchase" (click)="purchase()">Purchase</button>
+</div>

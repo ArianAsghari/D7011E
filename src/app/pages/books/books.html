@@ -1,0 +1,25 @@
+<h1>Online Book Shop</h1>
+
+<div class="row">
+  <input [(ngModel)]="q" placeholder="Search by book name" />
+  <button (click)="load()">Search</button>
+</div>
+
+<div class="grid">
+  <div class="card" *ngFor="let b of books">
+    <img *ngIf="b.image_url" [src]="b.image_url" alt="cover" />
+    <div class="title">
+      <a [routerLink]="['/books', b.id]">{{ b.name }}</a>
+    </div>
+    <div class="author">{{ b.author }}</div>
+    <div class="meta">{{ b.year }} · Language: {{ b.language }} · {{ b.price }} USD</div>
+
+    <div class="buy">
+      <label>Quantity</label>
+      <select [(ngModel)]="qty[b.id]">
+        <option *ngFor="let n of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]" [value]="n">{{ n }}</option>
+      </select>
+      <button (click)="add(b)">Add to Cart</button>
+    </div>
+  </div>
+</div>

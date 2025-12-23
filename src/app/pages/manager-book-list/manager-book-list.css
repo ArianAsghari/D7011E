@@ -1,0 +1,5 @@
+table { width: 100%; border-collapse: collapse; max-width: 980px; }
+th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e6e6e6; }
+.actions { display: flex; gap: 10px; justify-content: flex-end; }
+.edit { background: #3b6cff; color: white; padding: 10px 12px; text-decoration: none; border-radius: 6px; }
+.del { background: #ff5a5a; color: white; border: 0; padding: 10px 12px; border-radius: 6px; cursor: pointer; }

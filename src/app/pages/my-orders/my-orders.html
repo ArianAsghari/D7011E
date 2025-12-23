@@ -1,0 +1,13 @@
+<h1>My Orders</h1>
+
+<div *ngIf="orders.length === 0">No orders yet.</div>
+
+<div class="order" *ngFor="let o of orders">
+  <div class="head">Order #{{ o.id }} · {{ o.status }}</div>
+
+  <div class="item" *ngFor="let it of o.items">
+    <div class="name">{{ it.name }} — {{ it.author }}</div>
+    <div>Quantity: {{ it.quantity }}</div>
+    <div>Price: {{ (it.price * it.quantity) | number:'1.2-2' }} USD</div>
+  </div>
+</div>

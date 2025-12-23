@@ -1,0 +1,22 @@
+<h1>Register</h1>
+
+<div class="card">
+  <input [(ngModel)]="email" placeholder="email" />
+  <input [(ngModel)]="password" placeholder="password" type="password" />
+  <input [(ngModel)]="confirm" placeholder="retype password" type="password" />
+  <input [(ngModel)]="name" placeholder="John Smith" />
+
+  <label>Role</label>
+  <select [(ngModel)]="role">
+    <option value="CUSTOMER">customer</option>
+    <option value="EMPLOYEE">manager</option>
+    <option value="ADMIN">admin</option>
+  </select>
+
+  <button (click)="submit()">Register</button>
+
+  <div class="ok" *ngIf="msg">{{ msg }}</div>
+  <div class="err" *ngIf="err">{{ err }}</div>
+
+  <p class="muted"><a routerLink="/login">Login</a></p>
+</div>

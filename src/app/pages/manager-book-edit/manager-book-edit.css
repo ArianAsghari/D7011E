@@ -1,0 +1,6 @@
+.form { max-width: 720px; display: grid; gap: 10px; }
+input, textarea { padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+textarea { min-height: 120px; }
+button { padding: 12px 14px; width: fit-content; }
+.ok { color: #0a7b2e; margin-top: 10px; }
+.err { color: #b00020; margin-top: 10px; }
