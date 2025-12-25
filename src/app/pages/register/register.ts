@@ -18,7 +18,7 @@ export class RegisterComponent {
   email = '';
   password = '';
   confirm = '';
-  name = 'customer';
+  name = '';
   role: Role = 'CUSTOMER';
   msg = '';
   err = '';
