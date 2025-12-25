@@ -1,7 +1,7 @@
 <div class="layout">
   <aside class="sidebar">
     <div class="who" *ngIf="user(); else guest">
-      <div class="who-role">{{ user()?.role }}</div>
+      <div class="who-role">{{ user()?.role}}</div>
       <div class="who-email">{{ user()?.email }}</div>
       <div class="who-name">{{ user()?.name }}</div>
     </div>
@@ -19,8 +19,8 @@
     <a *ngIf="!user()" routerLink="/login" routerLinkActive="active">Login</a>
     <a *ngIf="!user()" routerLink="/register" routerLinkActive="active">Register</a>
 
-    <a *ngIf="user()" routerLink="/cart" routerLinkActive="active">Cart</a>
-    <a *ngIf="user()" routerLink="/my-orders" routerLinkActive="active">My Orders</a>
+    <a *ngIf="user()?.role=='CUSTOMER'" routerLink="/cart" routerLinkActive="active">Cart</a>
+    <a *ngIf="user()?.role=='CUSTOMER'" routerLink="/my-orders" routerLinkActive="active">My Orders</a>
 
     <div class="section" *ngIf="role() === 'EMPLOYEE' || role() === 'ADMIN'">MANAGER</div>
     <a *ngIf="role() === 'EMPLOYEE' || role() === 'ADMIN'"

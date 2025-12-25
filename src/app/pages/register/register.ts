@@ -21,8 +21,6 @@ export class RegisterComponent {
   name = '';
   password = '';
   confirm = '';
-
-  // register.html has: <select [(ngModel)]="role">
   role: Role = 'CUSTOMER';
 
   msg = '';
