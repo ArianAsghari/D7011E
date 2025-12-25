@@ -1,3 +1,4 @@
+// backend/routes/auth.js
 const express = require("express");
 const bcrypt = require("bcrypt");
 const { requireAuth, requireAnyRole } = require("../middleware/auth");
@@ -5,6 +6,7 @@ const { requireAuth, requireAnyRole } = require("../middleware/auth");
 function authRouter(db) {
   const router = express.Router();
 
+  // PUBLIC register -> always CUSTOMER (secure + grade-3 friendly)
   router.post("/register", async (req, res) => {
     try {
       const { name, email, password } = req.body;
@@ -28,10 +30,12 @@ function authRouter(db) {
     }
   });
 
+  // Auth check
   router.get("/me", requireAuth(db), (req, res) => {
     res.json(req.user);
   });
 
+  // ADMIN creates users (CUSTOMER/EMPLOYEE/ADMIN)
   router.post("/admin/create-user", requireAuth(db), requireAnyRole("ADMIN"), async (req, res) => {
     try {
       const { name, email, password, role } = req.body;
