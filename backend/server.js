@@ -5,6 +5,8 @@ const { initDb } = require("./db");
 const { booksRouter } = require("./routes/books");
 const { authRouter } = require("./routes/auth");
 const { ordersRouter } = require("./routes/orders");
+const { imagesRouter } = require("./routes/images");
+const { profilesRouter } = require("./routes/profiles");
 
 const app = express();
 app.use(cors());
@@ -25,6 +27,8 @@ async function start() {
   app.use("/api/books", booksRouter(db));
   app.use("/api", authRouter(db));        // /api/register, /api/me, /api/admin/create-user
   app.use("/api/orders", ordersRouter(db)); // /api/orders, /api/orders/mine
+  app.use("/api/images", imagesRouter(db));
+  app.use("/api/profiles", profilesRouter(db));
 
   app.listen(8080, () => console.log("API running on http://localhost:8080"));
 }

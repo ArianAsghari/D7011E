@@ -62,7 +62,7 @@ async function seedBooksIfEmpty(db) {
 // ----------------------------------------------------
 async function initDb() {
   const db = await open({
-    filename: path.join(__dirname, "app.db"), 
+    filename: path.join(__dirname, "app.db"),
     driver: sqlite3.Database,
   });
 
@@ -115,16 +115,17 @@ async function initDb() {
       order_id INTEGER NOT NULL,
       book_id INTEGER NOT NULL,
       quantity INTEGER NOT NULL CHECK (quantity > 0),
+      -- NOTE: unit_price may be missing in older DBs; we add it via migration below
       PRIMARY KEY (order_id, book_id),
       FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
       FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE RESTRICT
     );
   `);
 
-  // Safe migration for older DBs
-  await db.exec(
-    "ALTER TABLE books ADD COLUMN description TEXT DEFAULT ''"
-  ).catch(() => {});
+  await db.exec("ALTER TABLE books ADD COLUMN description TEXT DEFAULT ''").catch(() => {});
+
+  
+  await db.exec("ALTER TABLE order_items ADD COLUMN unit_price REAL").catch(() => {});
 
   // Seed books if empty
   await seedBooksIfEmpty(db);

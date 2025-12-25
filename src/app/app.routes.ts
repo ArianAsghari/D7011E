@@ -1,56 +1,45 @@
+// src/app/app.routes.ts
 import { Routes } from '@angular/router';
 import { authGuard, roleGuard } from './services/auth';
+
+import { LoginComponent } from './pages/login/login';
+import { RegisterComponent } from './pages/register/register';
+import { BooksComponent } from './pages/books/books';
+import { BookDetailsComponent } from './pages/book-details/book-details';
+import { CartComponent } from './pages/cart/cart';
+import { MyOrdersComponent } from './pages/my-orders/my-orders';
+
+import { AdminCreateUserComponent } from './pages/admin-create-user/admin-create-user';
+import { ManagerBookListComponent } from './pages/manager-book-list/manager-book-list';
+import { ManagerBookEditComponent } from './pages/manager-book-edit/manager-book-edit';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'books' },
 
-  // Public
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+
+  { path: 'books', component: BooksComponent },
+  { path: 'books/:id', component: BookDetailsComponent },
+
+  { path: 'cart', component: CartComponent, canActivate: [authGuard] },
+  { path: 'my-orders', component: MyOrdersComponent, canActivate: [authGuard] },
+
   {
-    path: 'login',
-    loadComponent: () => import('./pages/login/login').then(m => m.LoginComponent),
-  },
-  {
-    path: 'register',
-    loadComponent: () => import('./pages/register/register').then(m => m.RegisterComponent),
+    path: 'admin/create-user',
+    component: AdminCreateUserComponent,
+    canActivate: [authGuard, roleGuard('ADMIN')],
   },
 
-  // Customer
-  {
-    path: 'books',
-    loadComponent: () => import('./pages/books/books').then(m => m.BooksComponent),
-  },
-  {
-    path: 'books/:id',
-    loadComponent: () => import('./pages/book-details/book-details').then(m => m.BookDetailsComponent),
-  },
-  {
-    path: 'cart',
-    canActivate: [authGuard],
-    loadComponent: () => import('./pages/cart/cart').then(m => m.CartComponent),
-  },
-  {
-    path: 'my-orders',
-    canActivate: [authGuard],
-    loadComponent: () => import('./pages/my-orders/my-orders').then(m => m.MyOrdersComponent),
-  },
-
-  // Manager (EMPLOYEE)
   {
     path: 'manager/books',
+    component: ManagerBookListComponent,
     canActivate: [authGuard, roleGuard('EMPLOYEE', 'ADMIN')],
-    loadComponent: () => import('./pages/manager-book-list/manager-book-list').then(m => m.ManagerBookListComponent),
   },
   {
     path: 'manager/books/:id/edit',
+    component: ManagerBookEditComponent,
     canActivate: [authGuard, roleGuard('EMPLOYEE', 'ADMIN')],
-    loadComponent: () => import('./pages/manager-book-edit/manager-book-edit').then(m => m.ManagerBookEditComponent),
-  },
-
-  // Admin
-  {
-    path: 'admin/create-user',
-    canActivate: [authGuard, roleGuard('ADMIN')],
-    loadComponent: () => import('./pages/admin-create-user/admin-create-user').then(m => m.AdminCreateUserComponent),
   },
 
   { path: '**', redirectTo: 'books' },

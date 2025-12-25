@@ -1,23 +1,13 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
+import { ManagerBookEditComponent } from './manager-book-edit';
 
-import { ManagerBookEdit } from './manager-book-edit';
-
-describe('ManagerBookEdit', () => {
-  let component: ManagerBookEdit;
-  let fixture: ComponentFixture<ManagerBookEdit>;
-
-  beforeEach(async () => {
+describe('ManagerBookEditComponent', () => {
+  it('should create', async () => {
     await TestBed.configureTestingModule({
-      imports: [ManagerBookEdit]
-    })
-    .compileComponents();
+      imports: [ManagerBookEditComponent],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(ManagerBookEdit);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    const fixture = TestBed.createComponent(ManagerBookEditComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });

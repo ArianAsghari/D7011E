@@ -1,23 +1,13 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
+import { AdminCreateUserComponent } from './admin-create-user';
 
-import { AdminCreateUser } from './admin-create-user';
-
-describe('AdminCreateUser', () => {
-  let component: AdminCreateUser;
-  let fixture: ComponentFixture<AdminCreateUser>;
-
-  beforeEach(async () => {
+describe('AdminCreateUserComponent', () => {
+  it('should create', async () => {
     await TestBed.configureTestingModule({
-      imports: [AdminCreateUser]
-    })
-    .compileComponents();
+      imports: [AdminCreateUserComponent],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(AdminCreateUser);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+    const fixture = TestBed.createComponent(AdminCreateUserComponent);
+    expect(fixture.componentInstance).toBeTruthy();
   });
 });
