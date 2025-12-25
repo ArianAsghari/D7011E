@@ -1,36 +1,102 @@
 <div class="layout">
   <aside class="sidebar">
-    <div class="who" *ngIf="user(); else guest">
-      <div class="who-role">{{ user()?.role}}</div>
-      <div class="who-email">{{ user()?.email }}</div>
-      <div class="who-name">{{ user()?.name }}</div>
+    <!-- User Profile Section -->
+    <div class="user-section">
+      <div class="user-info" *ngIf="user(); else guest">
+        <div class="user-avatar">
+          <div class="avatar-initials">{{ getUserInitials() }}</div>
+        </div>
+        <div class="user-details">
+          <div class="user-name">{{ user()?.name }}</div>
+          <div class="user-email">{{ user()?.email }}</div>
+          <div class="user-role-tag" [class]="'role-' + user()?.role?.toLowerCase()">
+            {{ user()?.role }}
+          </div>
+        </div>
+      </div>
+
+      <ng-template #guest>
+        <div class="user-info">
+          <div class="user-avatar guest">
+            <div class="avatar-initials">G</div>
+          </div>
+          <div class="user-details">
+            <div class="user-name">Guest User</div>
+            <div class="user-email">Sign in to continue</div>
+            <div class="user-role-tag role-guest">GUEST</div>
+          </div>
+        </div>
+      </ng-template>
     </div>
 
-    <ng-template #guest>
-      <div class="who">
-        <div class="who-role">Guest</div>
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+      <!-- Home Section -->
+      <div class="nav-section" *ngIf="user()?.role=='CUSTOMER'">
+        <div class="section-label">HOME</div>
+        <a routerLink="/books" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">📚</span>
+          <span class="nav-text">Books</span>
+          <span class="nav-arrow">›</span>
+        </a>
       </div>
-    </ng-template>
 
-    <div class="section">HOME</div>
-    <a routerLink="/books" routerLinkActive="active">Books</a>
+      <!-- Account Section -->
+      <div class="nav-section">
+        <div class="section-label">ACCOUNT</div>
+        <a *ngIf="!user()" routerLink="/login" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">🔐</span>
+          <span class="nav-text">Login</span>
+          <span class="nav-arrow">›</span>
+        </a>
+        <a *ngIf="!user()" routerLink="/register" routerLinkActive="active" class="nav-link highlight">
+          <span class="nav-icon">📝</span>
+          <span class="nav-text">Register</span>
+          <span class="nav-arrow">›</span>
+        </a>
 
-    <div class="section">ACCOUNT</div>
-    <a *ngIf="!user()" routerLink="/login" routerLinkActive="active">Login</a>
-    <a *ngIf="!user()" routerLink="/register" routerLinkActive="active">Register</a>
+        <a *ngIf="user()?.role=='CUSTOMER'" routerLink="/cart" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">🛒</span>
+          <span class="nav-text">Cart</span>
+          <span class="nav-arrow">›</span>
+        </a>
+        <a *ngIf="user()?.role=='CUSTOMER'" routerLink="/my-orders" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">📦</span>
+          <span class="nav-text">My Orders</span>
+          <span class="nav-arrow">›</span>
+        </a>
+      </div>
 
-    <a *ngIf="user()?.role=='CUSTOMER'" routerLink="/cart" routerLinkActive="active">Cart</a>
-    <a *ngIf="user()?.role=='CUSTOMER'" routerLink="/my-orders" routerLinkActive="active">My Orders</a>
+      <!-- Manager Section -->
+      <div class="nav-section" *ngIf="role() === 'EMPLOYEE' || role() === 'ADMIN'">
+        <div class="section-label">MANAGEMENT</div>
+        <a *ngIf="role() === 'EMPLOYEE' || role() === 'ADMIN'"
+           routerLink="/manager/books" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">📋</span>
+          <span class="nav-text">Book Inventory</span>
+          <span class="nav-arrow">›</span>
+        </a>
+      </div>
 
-    <div class="section" *ngIf="role() === 'EMPLOYEE' || role() === 'ADMIN'">MANAGER</div>
-    <a *ngIf="role() === 'EMPLOYEE' || role() === 'ADMIN'"
-       routerLink="/manager/books" routerLinkActive="active">Book List</a>
+      <!-- Admin Section -->
+      <div class="nav-section" *ngIf="role() === 'ADMIN'">
+        <div class="section-label">ADMINISTRATION</div>
+        <a *ngIf="role() === 'ADMIN'"
+           routerLink="/admin/create-user" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">👥</span>
+          <span class="nav-text">Create User</span>
+          <span class="nav-arrow">›</span>
+        </a>
+      </div>
+    </nav>
 
-    <div class="section" *ngIf="role() === 'ADMIN'">ADMIN</div>
-    <a *ngIf="role() === 'ADMIN'"
-       routerLink="/admin/create-user" routerLinkActive="active">Create User</a>
-
-    <button class="logout" *ngIf="user()" (click)="logout()">Logout</button>
+    <!-- Logout Section -->
+    <div class="sidebar-footer" *ngIf="user()">
+      <button class="logout-btn" (click)="logout()">
+        <span class="logout-icon">🚪</span>
+        <span class="logout-text">Logout</span>
+      </button>
+    </div>
   </aside>
 
   <main class="content">

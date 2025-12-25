@@ -1,5 +1,9 @@
 <h1>Book List</h1>
 
+<div style="margin: 12px 0;">
+  <a class="edit" routerLink="/manager/books/new">+ Add new book</a>
+</div>
+
 <table>
   <thead>
     <tr>
@@ -13,7 +17,7 @@
       <td>{{ b.name }}</td>
       <td>{{ b.author }}</td>
       <td class="actions">
-        <a class="edit" [routerLink]="['/manager/books', b.id, 'edit']">Edit</a>
+        <a class="edit" [routerLink]="['/manager/books/', b.id, 'edit']">Edit</a>
         <button class="del" (click)="del(b.id)">Delete</button>
       </td>
     </tr>

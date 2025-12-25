@@ -19,4 +19,17 @@ export class AppComponent {
   logout() {
     this.auth.logout();
   }
+
+  getUserInitials(): string {
+    const name = this.user()?.name;
+    if (!name) return 'U';
+
+    const nameParts = name.trim().split(' ');
+    if (nameParts.length === 1) {
+      return nameParts[0].charAt(0).toUpperCase();
+    }
+
+    return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase();
+  }
+
 }

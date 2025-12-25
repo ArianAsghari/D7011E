@@ -1,9 +1,8 @@
 <a routerLink="/manager/books">← Back</a>
 
-<h1>Edit Book</h1>
+<h1>Create Book</h1>
 
-
-<div *ngIf="book" class="form">
+<div class="form">
   <label>Book Name</label>
   <input [(ngModel)]="book.name" />
 
@@ -25,7 +24,8 @@
   <label>Language</label>
   <input [(ngModel)]="book.language" />
 
-  <button (click)="save()">Update Book</button>
+  <button (click)="save()">Create Book</button>
 
   <div class="ok" *ngIf="msg">{{ msg }}</div>
+  <div class="err" *ngIf="err">{{ err }}</div>
 </div>

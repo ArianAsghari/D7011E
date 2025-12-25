@@ -6,13 +6,35 @@ export type Book = {
   id: number;
   name: string;
   author: string;
-  description?: string;
-  language?: string;
-  year?: number;
+  description: string;
+  language: string | null;
+  year: number | null;
   price: number;
   stock: number;
+  image_id: number | null;
   image_url?: string | null;
-  image_id?: number | null;
+};
+
+export type BookCreate = {
+  name: string;
+  author: string;
+  description: string;
+  language: string | null;
+  year: number | null;
+  price: number;
+  stock: number;
+  image_id: number | null;
+};
+
+export type BookUpdate = {
+  name: string;
+  author: string;
+  description: string;
+  language: string | null;
+  year: number | null;
+  price: number;
+  stock: number;
+  image_id: number | null;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -31,11 +53,20 @@ export class BooksService {
     return this.http.get<Book>(`${this.api}/${id}`);
   }
 
-  update(id: number, patch: Partial<Book>): Observable<Book> {
-    return this.http.put<Book>(`${this.api}/${id}`, patch);
+  create(body: BookCreate): Observable<Book> {
+    return this.http.post<Book>(this.api, body);
   }
 
-  delete(id: number): Observable<{ ok: true }> {
+  update(id: number, body: BookUpdate): Observable<Book> {
+    return this.http.put<Book>(`${this.api}/${id}`, body);
+  }
+
+  remove(id: number): Observable<{ ok: true }> {
     return this.http.delete<{ ok: true }>(`${this.api}/${id}`);
+  }
+
+  // alias om du vill skriva this.api.delete(id)
+  delete(id: number) {
+    return this.remove(id);
   }
 }

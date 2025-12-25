@@ -6,13 +6,6 @@
   <input [(ngModel)]="confirm" placeholder="retype password" type="password" />
   <input [(ngModel)]="name" placeholder="John Smith" />
 
-  <label>Role</label>
-  <select [(ngModel)]="role">
-    <option value="CUSTOMER">customer</option>
-    <option value="EMPLOYEE">manager</option>
-    <option value="ADMIN">admin</option>
-  </select>
-
   <button (click)="submit()">Register</button>
 
   <div class="ok" *ngIf="msg">{{ msg }}</div>

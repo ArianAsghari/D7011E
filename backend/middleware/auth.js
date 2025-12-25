@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 
-// Parses Authorization: Basic base64(email:password)
+// Parse Authorization: Basic base64(email:password)
 function parseBasicAuth(req) {
   const header = req.headers.authorization || "";
   if (!header.startsWith("Basic ")) return null;
@@ -17,7 +17,7 @@ function parseBasicAuth(req) {
   const idx = decoded.indexOf(":");
   if (idx === -1) return null;
 
-  const email = decoded.slice(0, idx).trim();
+  const email = decoded.slice(0, idx).trim().toLowerCase();
   const password = decoded.slice(idx + 1);
 
   if (!email || !password) return null;
@@ -27,16 +27,16 @@ function parseBasicAuth(req) {
 // Middleware: require valid Basic Auth user
 function requireAuth(db) {
   return async (req, res, next) => {
+    const creds = parseBasicAuth(req);
+
+    if (!creds) {
+      return res
+        .status(401)
+        .set("WWW-Authenticate", 'Basic realm="bookstore"')
+        .json({ error: "Missing Basic Auth" });
+    }
+
     try {
-      const creds = parseBasicAuth(req);
-
-      if (!creds) {
-        return res
-          .status(401)
-          .set("WWW-Authenticate", 'Basic realm="bookstore"')
-          .json({ error: "Missing Basic Auth" });
-      }
-
       const user = await db.get(
         "SELECT id, name, email, password_hash, role FROM users WHERE email = ?",
         [creds.email]
@@ -57,11 +57,18 @@ function requireAuth(db) {
           .json({ error: "Invalid credentials" });
       }
 
-      // Attach user to request
-      req.user = { id: user.id, email: user.email, role: user.role, name: user.name };
+      // attach safe user info
+      req.user = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      };
+
       next();
     } catch (err) {
-      return res.status(500).json({ error: err.message });
+      console.error("Auth failed:", err);
+      res.status(500).json({ error: "Auth server error" });
     }
   };
 }

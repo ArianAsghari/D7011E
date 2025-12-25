@@ -13,6 +13,9 @@ import { AdminCreateUserComponent } from './pages/admin-create-user/admin-create
 import { ManagerBookListComponent } from './pages/manager-book-list/manager-book-list';
 import { ManagerBookEditComponent } from './pages/manager-book-edit/manager-book-edit';
 
+// NEW: create page
+import { ManagerBookCreateComponent } from './pages/manager-book-create/manager-book-create';
+
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'books' },
 
@@ -36,6 +39,14 @@ export const routes: Routes = [
     component: ManagerBookListComponent,
     canActivate: [authGuard, roleGuard('EMPLOYEE', 'ADMIN')],
   },
+
+  // NEW route for create
+  {
+    path: 'manager/books/new',
+    component: ManagerBookCreateComponent,
+    canActivate: [authGuard, roleGuard('EMPLOYEE', 'ADMIN')],
+  },
+
   {
     path: 'manager/books/:id/edit',
     component: ManagerBookEditComponent,

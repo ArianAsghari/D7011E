@@ -1,0 +1,20 @@
+.form {
+  max-width: 640px;
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+input,
+textarea {
+  padding: 10px;
+}
+button {
+  padding: 10px 12px;
+  width: fit-content;
+}
+.ok {
+  color: green;
+}
+.err {
+  color: #c00;
+}

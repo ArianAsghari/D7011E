@@ -1,4 +1,3 @@
-// backend/routes/books.js
 const express = require("express");
 const { requireAuth, requireAnyRole } = require("../middleware/auth");
 
@@ -8,7 +7,21 @@ function booksRouter(db) {
   // PUBLIC: GET /api/books
   router.get("/", async (req, res) => {
     try {
-      const rows = await db.all("SELECT * FROM books ORDER BY id DESC");
+      const q = (req.query.q || "").trim();
+      let rows;
+
+      // Optional search support
+      if (q) {
+        rows = await db.all(
+          `SELECT * FROM books
+           WHERE name LIKE ? OR author LIKE ?
+           ORDER BY id DESC`,
+          [`%${q}%`, `%${q}%`]
+        );
+      } else {
+        rows = await db.all("SELECT * FROM books ORDER BY id DESC");
+      }
+
       res.json(rows);
     } catch (err) {
       console.error("GET /api/books failed:", err);
@@ -28,87 +41,79 @@ function booksRouter(db) {
     }
   });
 
-  // EMPLOYEE/ADMIN: POST /api/books
-  router.post(
-    "/",
-    requireAuth(db),
-    requireAnyRole("EMPLOYEE", "ADMIN"),
-    async (req, res) => {
-      try {
-        const {
-          name,
-          author,
-          description = "",
-          language = null,
-          year = null,
-          price,
-          stock,
-          image_id = null,
-        } = req.body || {};
+  // EMPLOYEE/ADMIN: POST /api/books  (create)
+  router.post("/", requireAuth(db), requireAnyRole("EMPLOYEE", "ADMIN"), async (req, res) => {
+    try {
+      const {
+        name,
+        author,
+        description = "",
+        language = null,
+        year = null,
+        price,
+        stock,
+        image_id = null,
+      } = req.body || {};
 
-        if (!name || !author || price == null || stock == null) {
-          return res.status(400).json({ error: "Missing fields" });
-        }
-
-        const r = await db.run(
-          `INSERT INTO books (name, author, description, language, year, price, stock, image_id)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-          [name, author, description, language, year, price, stock, image_id]
-        );
-
-        const created = await db.get("SELECT * FROM books WHERE id = ?", [r.lastID]);
-        res.status(201).json(created);
-      } catch (err) {
-        console.error("POST /api/books failed:", err);
-        res.status(500).json({ error: "Server error" });
+      if (!name || !author || price == null || stock == null) {
+        return res.status(400).json({ error: "Missing fields" });
       }
+
+      const r = await db.run(
+        `INSERT INTO books (name, author, description, language, year, price, stock, image_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [name, author, description, language, year, price, stock, image_id]
+      );
+
+      const created = await db.get("SELECT * FROM books WHERE id = ?", [r.lastID]);
+      res.status(201).json(created);
+    } catch (err) {
+      console.error("POST /api/books failed:", err);
+      res.status(500).json({ error: "Server error" });
     }
-  );
+  });
 
-  // EMPLOYEE/ADMIN: PUT /api/books/:id
-  router.put(
-    "/:id",
-    requireAuth(db),
-    requireAnyRole("EMPLOYEE", "ADMIN"),
-    async (req, res) => {
-      try {
-        const id = req.params.id;
-        const existing = await db.get("SELECT * FROM books WHERE id = ?", [id]);
-        if (!existing) return res.status(404).json({ error: "Not found" });
+  // EMPLOYEE/ADMIN: PUT /api/books/:id  (update/edit)
+  router.put("/:id", requireAuth(db), requireAnyRole("EMPLOYEE", "ADMIN"), async (req, res) => {
+    try {
+      const id = req.params.id;
 
-        const b = { ...existing, ...(req.body || {}) };
+      const existing = await db.get("SELECT * FROM books WHERE id = ?", [id]);
+      if (!existing) return res.status(404).json({ error: "Not found" });
 
-        await db.run(
-          `UPDATE books
-           SET name=?, author=?, description=?, language=?, year=?, price=?, stock=?, image_id=?
-           WHERE id=?`,
-          [
-            b.name,
-            b.author,
-            b.description ?? "",
-            b.language ?? null,
-            b.year ?? null,
-            b.price,
-            b.stock,
-            b.image_id ?? null,
-            id,
-          ]
-        );
+      // Merge existing + incoming fields
+      const b = { ...existing, ...(req.body || {}) };
 
-        const updated = await db.get("SELECT * FROM books WHERE id = ?", [id]);
-        res.json(updated);
-      } catch (err) {
-        console.error("PUT /api/books/:id failed:", err);
-        res.status(500).json({ error: "Server error" });
-      }
+      await db.run(
+        `UPDATE books
+         SET name=?, author=?, description=?, language=?, year=?, price=?, stock=?, image_id=?
+         WHERE id=?`,
+        [
+          b.name,
+          b.author,
+          b.description ?? "",
+          b.language ?? null,
+          b.year ?? null,
+          b.price,
+          b.stock,
+          b.image_id ?? null,
+          id,
+        ]
+      );
+
+      const updated = await db.get("SELECT * FROM books WHERE id = ?", [id]);
+      res.json(updated);
+    } catch (err) {
+      console.error("PUT /api/books/:id failed:", err);
+      res.status(500).json({ error: "Server error" });
     }
-  );
+  });
 
-  // ADMIN: DELETE /api/books/:id
+  //EMPLOYEE/ADMIN: DELETE /api/books/:id  (delete)  <-- THIS IS THE FIX
   router.delete(
     "/:id",
     requireAuth(db),
-    requireAnyRole("ADMIN"),
+    requireAnyRole("EMPLOYEE", "ADMIN"),
     async (req, res) => {
       try {
         const id = req.params.id;
