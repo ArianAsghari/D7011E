@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BooksService, Book, BookUpdate } from '../../services/books';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-manager-book-edit',
@@ -11,10 +12,11 @@ import { BooksService, Book, BookUpdate } from '../../services/books';
   templateUrl: './manager-book-edit.html',
   styleUrl: './manager-book-edit.css',
 })
-export class ManagerBookEditComponent {
+export class ManagerBookEditComponent implements OnInit {
   private api = inject(BooksService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef); 
 
   book: Book | null = null;
   loading = false;
@@ -28,6 +30,14 @@ export class ManagerBookEditComponent {
       return;
     }
     this.load(id);
+    
+    // Listen for route changes
+    this.route.paramMap.subscribe(params => {
+      const newId = Number(params.get('id'));
+      if (newId && newId !== id) {
+        this.load(newId);
+      }
+    });
   }
 
   private load(id: number) {
@@ -39,10 +49,12 @@ export class ManagerBookEditComponent {
       next: (b) => {
         this.book = b;
         this.loading = false;
+        this.cdr.detectChanges(); 
       },
       error: (e: any) => {
         this.err = e?.error?.error ?? `Load failed (${e?.status ?? 'no status'})`;
         this.loading = false;
+        this.cdr.detectChanges(); 
       },
     });
   }
@@ -69,9 +81,17 @@ export class ManagerBookEditComponent {
     this.api.update(id, payload).subscribe({
       next: () => {
         this.msg = 'Updated';
-        this.router.navigateByUrl('/manager/books');
+        this.cdr.detectChanges(); 
+        
+        // Wait a bit before navigating
+        setTimeout(() => {
+          this.router.navigateByUrl('/manager/books');
+        }, 1000);
       },
-      error: (e: any) => (this.err = e?.error?.error ?? 'Update failed'),
+      error: (e: any) => {
+        this.err = e?.error?.error ?? 'Update failed';
+        this.cdr.detectChanges(); 
+      },
     });
   }
 }
