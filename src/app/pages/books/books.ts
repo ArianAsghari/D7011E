@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BooksService, Book } from '../../services/books';
 import { CartService } from '../../services/cart';
-import { AuthService } from '../../services/auth'; // Add this!
+import { AuthService } from '../../services/auth'; 
 
 @Component({
   selector: 'app-books',
@@ -16,7 +16,7 @@ import { AuthService } from '../../services/auth'; // Add this!
 export class BooksComponent implements OnInit {
   private api = inject(BooksService);
   private cart = inject(CartService);
-  private auth = inject(AuthService); // Add auth service
+  private auth = inject(AuthService); 
 
   books: Book[] = [];
   q = '';
