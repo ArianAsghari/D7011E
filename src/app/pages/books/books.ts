@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BooksService, Book } from '../../services/books';
 import { CartService } from '../../services/cart';
-import { ChangeDetectorRef } from '@angular/core';  
+import { AuthService } from '../../services/auth'; // Add this!
 
 @Component({
   selector: 'app-books',
@@ -16,11 +16,14 @@ import { ChangeDetectorRef } from '@angular/core';
 export class BooksComponent implements OnInit {
   private api = inject(BooksService);
   private cart = inject(CartService);
-  private cdr = inject(ChangeDetectorRef);  
+  private auth = inject(AuthService); // Add auth service
 
   books: Book[] = [];
   q = '';
   qty: Record<number, number> = {};
+
+  // Get user data
+  user = this.auth.user;
 
   ngOnInit() {
     this.load();
@@ -30,8 +33,6 @@ export class BooksComponent implements OnInit {
     this.api.list(this.q).subscribe((data) => {
       this.books = data;
       for (const b of data) if (!this.qty[b.id]) this.qty[b.id] = 1;
-      
-      this.cdr.detectChanges(); 
     });
   }
 

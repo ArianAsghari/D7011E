@@ -1,11 +1,11 @@
 <h1>Online Book Shop</h1>
 
-<div class="row">
+<div class="row" *ngIf="user()?.role=='CUSTOMER'">
   <input [(ngModel)]="q" placeholder="Search by book name" />
   <button (click)="load()">Search</button>
 </div>
 
-<div class="grid">
+<div class="grid" *ngIf="user()?.role=='CUSTOMER'">
   <div class="card" *ngFor="let b of books">
     <img *ngIf="b.image_url" [src]="b.image_url" alt="cover" />
     <div class="title">
