@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BooksService, Book } from '../../services/books';
 import { CartService } from '../../services/cart';
+import { ChangeDetectorRef } from '@angular/core'; // 🔥 ADD THIS
 
 @Component({
   selector: 'app-books',
@@ -12,9 +13,10 @@ import { CartService } from '../../services/cart';
   templateUrl: './books.html',
   styleUrl: './books.css',
 })
-export class BooksComponent {
+export class BooksComponent implements OnInit {
   private api = inject(BooksService);
   private cart = inject(CartService);
+  private cdr = inject(ChangeDetectorRef); // 🔥 ADD THIS
 
   books: Book[] = [];
   q = '';
@@ -28,6 +30,8 @@ export class BooksComponent {
     this.api.list(this.q).subscribe((data) => {
       this.books = data;
       for (const b of data) if (!this.qty[b.id]) this.qty[b.id] = 1;
+      
+      this.cdr.detectChanges(); // 🔥 ADD THIS ONE LINE
     });
   }
 
