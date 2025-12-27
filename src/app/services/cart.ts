@@ -11,14 +11,16 @@ export class CartService {
   add(book: Book, qty: number) {
     const quantity = Math.max(1, Math.floor(qty));
     const items = [...this._items()];
-    const idx = items.findIndex(i => i.book.id === book.id);
+    const idx = items.findIndex((i) => i.book.id === book.id);
+
     if (idx >= 0) items[idx] = { book, quantity: items[idx].quantity + quantity };
     else items.push({ book, quantity });
+
     this._items.set(items);
   }
 
   remove(bookId: number) {
-    this._items.set(this._items().filter(i => i.book.id !== bookId));
+    this._items.set(this._items().filter((i) => i.book.id !== bookId));
   }
 
   clear() {
@@ -29,7 +31,11 @@ export class CartService {
     return this._items().reduce((sum, i) => sum + i.book.price * i.quantity, 0);
   }
 
-  toOrderItems() {
-    return this._items().map(i => ({ bookId: i.book.id, quantity: i.quantity }));
+  // BACKEND expects: { book_id, quantity }
+  toOrderItems(): { book_id: number; quantity: number }[] {
+    return this._items().map((i) => ({
+      book_id: i.book.id,
+      quantity: i.quantity,
+    }));
   }
 }

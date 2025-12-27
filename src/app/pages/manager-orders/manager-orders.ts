@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { AuthService, Role } from '../../services/auth';
+import { OrdersService } from '../../services/orders';
 
 type OrderItem = {
   book_id: number;
@@ -22,8 +22,6 @@ type OrderRow = {
   items: OrderItem[];
 };
 
-const API = 'http://localhost:8080/api';
-
 @Component({
   selector: 'app-manager-orders',
   standalone: true,
@@ -32,15 +30,15 @@ const API = 'http://localhost:8080/api';
   styleUrl: './manager-orders.css',
 })
 export class ManagerOrdersComponent {
-  private http = inject(HttpClient);
   private auth = inject(AuthService);
+  private ordersApi = inject(OrdersService);
 
   orders: OrderRow[] = [];
   err = '';
   ok = '';
 
   editStatus: Record<number, string> = {};
-  editQty: Record<string, number> = {}; // key: `${orderId}:${bookId}`
+  editQty: Record<string, number> = {}; // `${orderId}:${bookId}`
 
   ngOnInit() {
     this.load();
@@ -55,9 +53,13 @@ export class ManagerOrdersComponent {
     this.err = '';
     this.ok = '';
 
-    // requires backend: GET /api/orders/admin
-    this.http.get<OrderRow[]>(`${API}/orders/admin`).subscribe({
-      next: (rows) => {
+    if (!this.canManage()) {
+      this.err = 'Forbidden';
+      return;
+    }
+
+    this.ordersApi.adminOrders().subscribe({
+      next: (rows: any) => {
         this.orders = rows || [];
         for (const o of this.orders) {
           this.editStatus[o.id] = o.status;
@@ -75,7 +77,7 @@ export class ManagerOrdersComponent {
     this.ok = '';
     const status = this.editStatus[orderId];
 
-    this.http.put(`${API}/orders/${orderId}`, { status }).subscribe({
+    this.ordersApi.updateStatus(orderId, status).subscribe({
       next: () => {
         this.ok = `Updated order #${orderId}`;
         this.load();
@@ -87,10 +89,9 @@ export class ManagerOrdersComponent {
   updateItemQty(orderId: number, bookId: number) {
     this.err = '';
     this.ok = '';
-    const quantity = this.editQty[`${orderId}:${bookId}`];
+    const quantity = Number(this.editQty[`${orderId}:${bookId}`]);
 
-    // match backend route in orders.js
-    this.http.put(`${API}/orders/${orderId}/items/${bookId}`, { quantity }).subscribe({
+    this.ordersApi.updateItemQty(orderId, bookId, quantity).subscribe({
       next: () => {
         this.ok = `Updated item in order #${orderId}`;
         this.load();
@@ -103,8 +104,7 @@ export class ManagerOrdersComponent {
     this.err = '';
     this.ok = '';
 
-    // match backend route in orders.js
-    this.http.delete(`${API}/orders/${orderId}/items/${bookId}`).subscribe({
+    this.ordersApi.deleteItem(orderId, bookId).subscribe({
       next: () => {
         this.ok = `Deleted item from order #${orderId}`;
         this.load();

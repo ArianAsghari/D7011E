@@ -13,7 +13,9 @@ export class MyOrdersComponent {
   private ordersApi = inject(OrdersService);
 
   orders: Order[] = [];
+
   ngOnInit() {
-    this.ordersApi.mine().subscribe((o) => (this.orders = o));
+    // works because OrdersService has mine() again
+    this.ordersApi.mine().subscribe((o: Order[]) => (this.orders = o || []));
   }
 }

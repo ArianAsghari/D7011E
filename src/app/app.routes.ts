@@ -1,4 +1,3 @@
-// src/app/app.routes.ts
 import { Routes } from '@angular/router';
 import { authGuard, roleGuard } from './services/auth';
 
@@ -63,12 +62,12 @@ export const routes: Routes = [
     component: ManagerBookEditComponent,
     canActivate: [authGuard, roleGuard('EMPLOYEE', 'ADMIN')],
   },
-
   {
     path: 'manager/orders',
     component: ManagerOrdersComponent,
     canActivate: [authGuard, roleGuard('EMPLOYEE', 'ADMIN')],
   },
 
+  // keep wildcard LAST 
   { path: '**', redirectTo: 'books' },
 ];

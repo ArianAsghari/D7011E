@@ -22,8 +22,8 @@ export class CartComponent {
   }
 
   purchase() {
-    const items = this.cart.toOrderItems();
-    if (items.length === 0) return;
+    const items = this.cart.toOrderItems(); // ✅ {book_id, quantity}
+    if (!items.length) return;
 
     this.orders.checkout(items).subscribe({
       next: () => {
