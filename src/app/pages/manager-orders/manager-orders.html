@@ -1,0 +1,60 @@
+<div class="page">
+  <h1>Orders</h1>
+
+  <div *ngIf="err" class="msg err">{{ err }}</div>
+  <div *ngIf="ok" class="msg ok">{{ ok }}</div>
+
+  <div *ngIf="!orders.length" class="empty">
+    No orders found.
+  </div>
+
+  <div class="order-card" *ngFor="let o of orders">
+    <div class="order-head">
+      <div>
+        <div class="title">Order #{{ o.id }}</div>
+        <div class="sub">
+          Customer: <b>{{ o.customer_name }}</b> ({{ o.customer_email }}) •
+          Created: {{ o.created_at }}
+        </div>
+      </div>
+
+      <div class="status-box">
+        <label>Status</label>
+        <select [(ngModel)]="editStatus[o.id]">
+          <option value="NEW">NEW</option>
+          <option value="PROCESSING">PROCESSING</option>
+          <option value="DONE">DONE</option>
+          <option value="CANCELLED">CANCELLED</option>
+        </select>
+        <button (click)="updateStatus(o.id)">Update</button>
+      </div>
+    </div>
+
+    <div class="items">
+      <div class="items-head">
+        <div>Book</div>
+        <div>Qty</div>
+        <div>Unit price</div>
+        <div>Actions</div>
+      </div>
+
+      <div class="item-row" *ngFor="let it of o.items">
+        <div class="book">
+          <div class="book-name">{{ it.book_name }}</div>
+          <div class="book-author">{{ it.book_author }}</div>
+        </div>
+
+        <div class="qty">
+          <input type="number" min="1" [(ngModel)]="editQty[o.id + ':' + it.book_id]" />
+        </div>
+
+        <div class="price">{{ it.unit_price }}</div>
+
+        <div class="actions">
+          <button class="btn" (click)="updateItemQty(o.id, it.book_id)">Save</button>
+          <button class="btn danger" (click)="deleteItem(o.id, it.book_id)">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

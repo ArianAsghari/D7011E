@@ -1,6 +1,8 @@
+// backend/db.js
 const sqlite3 = require("sqlite3").verbose();
 const { open } = require("sqlite");
 const path = require("path");
+const bcrypt = require("bcrypt");
 
 // ----------------------------------------------------
 // Seed helper: runs ONCE if books table is empty
@@ -9,7 +11,6 @@ async function seedBooksIfEmpty(db) {
   const row = await db.get("SELECT COUNT(*) AS c FROM books");
   if (row?.c > 0) return;
 
-  // Seed list (from your SQL), adapted for SQLite and parameterized inserts
   const books = [
     ["The Great Gatsby", "F. Scott Fitzgerald", "A classic novel about the American Dream", "en", 1925, 19.99, 50],
     ["To Kill a Mockingbird", "Harper Lee", "A story of racial injustice in the American South", "en", 1960, 15.99, 30],
@@ -61,6 +62,98 @@ async function seedBooksIfEmpty(db) {
   } catch (err) {
     await db.exec("ROLLBACK");
     throw err;
+  }
+}
+
+// ----------------------------------------------------
+// Seed helper: runs ONCE if orders table is empty
+// ----------------------------------------------------
+async function seedOrdersIfEmpty(db) {
+  const row = await db.get("SELECT COUNT(*) AS c FROM orders");
+  if (row?.c > 0) return;
+
+  // 1) Find a CUSTOMER (or create one if missing)
+  let customer = await db.get("SELECT id FROM users WHERE role='CUSTOMER' ORDER BY id LIMIT 1");
+
+  if (!customer) {
+    const hash = await bcrypt.hash("customer123", 10);
+    const r = await db.run(
+      "INSERT INTO users (name,email,password_hash,role) VALUES (?,?,?,?)",
+      ["Seed Customer", "customer@test.com", hash, "CUSTOMER"]
+    );
+    await db.run("INSERT INTO profiles (user_id, phone) VALUES (?, ?)", [r.lastID, null]);
+    customer = { id: r.lastID };
+    console.log("Seeded CUSTOMER: customer@test.com / customer123");
+  }
+
+  // 2) Pick some books
+  const books = await db.all("SELECT id, price, stock FROM books ORDER BY id LIMIT 3");
+  if (books.length === 0) return;
+
+  // Ensure we don’t go negative stock on demo
+  // (Only reduce stock if it is enough; otherwise leave stock unchanged.)
+  const itemsToAdd = [
+    { book_id: books[0].id, quantity: 1, unit_price: books[0].price },
+    { book_id: books[1].id, quantity: 2, unit_price: books[1].price },
+  ];
+
+  await db.exec("BEGIN");
+  try {
+    const o = await db.run(
+      "INSERT INTO orders (customer_id, status) VALUES (?, ?)",
+      [customer.id, "NEW"]
+    );
+
+    for (const it of itemsToAdd) {
+      await db.run(
+        "INSERT INTO order_items (order_id, book_id, quantity, unit_price) VALUES (?,?,?,?)",
+        [o.lastID, it.book_id, it.quantity, it.unit_price]
+      );
+
+      const b = await db.get("SELECT stock FROM books WHERE id=?", [it.book_id]);
+      if (b && Number(b.stock) >= it.quantity) {
+        await db.run("UPDATE books SET stock = stock - ? WHERE id = ?", [it.quantity, it.book_id]);
+      }
+    }
+
+    await db.exec("COMMIT");
+    console.log(`Seeded 1 order with ${itemsToAdd.length} items.`);
+  } catch (err) {
+    await db.exec("ROLLBACK");
+    throw err;
+  }
+}
+
+// ----------------------------------------------------
+// Seed helper: ensure admin + manager exist (runs if missing)
+// ----------------------------------------------------
+async function seedStaffIfMissing(db) {
+  // ADMIN
+  const adminEmail = "admin@test.com";
+  const adminPass = "admin123";
+  let admin = await db.get("SELECT id FROM users WHERE email=?", [adminEmail]);
+  if (!admin) {
+    const hash = await bcrypt.hash(adminPass, 10);
+    const r = await db.run(
+      "INSERT INTO users (name,email,password_hash,role) VALUES (?,?,?,?)",
+      ["Admin", adminEmail, hash, "ADMIN"]
+    );
+    await db.run("INSERT OR IGNORE INTO profiles (user_id, phone) VALUES (?, ?)", [r.lastID, null]);
+    console.log("Seeded ADMIN: admin@test.com / admin123");
+  }
+
+  // MANAGER = EMPLOYEE
+  const managerEmail = "manager@test.com";
+  const managerPass = "manager123";
+  let manager = await db.get("SELECT id FROM users WHERE email=?", [managerEmail]);
+  if (!manager) {
+    const hash = await bcrypt.hash(managerPass, 10);
+    const r = await db.run(
+      "INSERT INTO users (name,email,password_hash,role) VALUES (?,?,?,?)",
+      ["Manager", managerEmail, hash, "EMPLOYEE"]
+    );
+    await db.run("INSERT OR IGNORE INTO profiles (user_id, phone) VALUES (?, ?)", [r.lastID, null]);
+    console.log("Seeded MANAGER: manager@test.com / manager123");
   }
 }
 
@@ -132,12 +225,13 @@ async function initDb() {
   `);
 
   // Lightweight “migrations” (in case older db exists)
-  // If column already exists -> SQLite throws -> we ignore
   await db.exec("ALTER TABLE books ADD COLUMN description TEXT DEFAULT ''").catch(() => {});
   await db.exec("ALTER TABLE order_items ADD COLUMN unit_price REAL").catch(() => {});
 
-  // Seed
+  // Seed (books first, then orders)
   await seedBooksIfEmpty(db);
+  await seedStaffIfMissing(db);
+  await seedOrdersIfEmpty(db);
 
   return db;
 }

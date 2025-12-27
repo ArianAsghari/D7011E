@@ -84,6 +84,14 @@
           <span class="nav-text">Book Inventory</span>
           <span class="nav-arrow">›</span>
         </a>
+
+        <a *ngIf="role() === 'EMPLOYEE' || role() === 'ADMIN'"
+          routerLink="/manager/orders" routerLinkActive="active" class="nav-link">
+          <span class="nav-icon">🧾</span>
+          <span class="nav-text">Orders</span>
+          <span class="nav-arrow">›</span>
+        </a>
+
       </div>
 
       <!-- Admin Section -->

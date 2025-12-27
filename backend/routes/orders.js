@@ -58,6 +58,44 @@ function ordersRouter(db) {
     }
   });
 
+  // ADMIN/EMPLOYEE: list ALL orders with customer + items
+  // GET /api/orders/admin
+  router.get(
+    "/admin",
+    requireAuth(db),
+    requireAnyRole("EMPLOYEE", "ADMIN"),
+    async (req, res) => {
+      try {
+        const orders = await db.all(
+          `SELECT o.*, u.email AS customer_email, u.name AS customer_name
+           FROM orders o
+           JOIN users u ON u.id = o.customer_id
+           ORDER BY o.id DESC`
+        );
+
+        const out = [];
+        for (const o of orders) {
+          const items = await db.all(
+            `SELECT oi.book_id, oi.quantity, oi.unit_price,
+                    b.name AS book_name, b.author AS book_author
+             FROM order_items oi
+             JOIN books b ON b.id = oi.book_id
+             WHERE oi.order_id = ?
+             ORDER BY b.name`,
+            [o.id]
+          );
+          out.push({ ...o, items });
+        }
+
+        res.json(out);
+      } catch (err) {
+        console.error("GET /orders/admin failed:", err);
+        res.status(500).json({ error: "Server error" });
+      }
+    }
+  );
+
+
   router.put("/users/:id", requireAuth(db), requireAnyRole("ADMIN"), async (req, res) => {
     try {
       const id = req.params.id;

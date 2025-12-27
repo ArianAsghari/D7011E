@@ -1,0 +1,32 @@
+.page { padding: 20px; max-width: 1100px; }
+.msg { margin: 10px 0; padding: 10px; border-radius: 8px; }
+.msg.err { background: #ffe6e6; }
+.msg.ok { background: #e6ffe6; }
+
+.order-card { border: 1px solid #eee; border-radius: 12px; padding: 16px; margin: 16px 0; }
+.order-head { display: flex; gap: 16px; justify-content: space-between; align-items: flex-start; }
+.title { font-size: 20px; font-weight: 700; }
+.sub { opacity: 0.8; margin-top: 4px; }
+
+.status-box { display: grid; gap: 6px; min-width: 220px; }
+.status-box select, .status-box button { padding: 8px; }
+
+.items { margin-top: 12px; }
+.items-head, .item-row {
+  display: grid;
+  grid-template-columns: 1.5fr 120px 140px 200px;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 0;
+}
+.items-head { font-weight: 700; border-bottom: 1px solid #eee; }
+.item-row { border-bottom: 1px solid #f3f3f3; }
+
+.book-name { font-weight: 600; }
+.book-author { opacity: 0.75; font-size: 13px; }
+
+.qty input { width: 90px; padding: 6px; }
+
+.actions { display: flex; gap: 8px; justify-content: flex-end; }
+.btn { padding: 8px 10px; border-radius: 8px; border: 1px solid #ddd; background: white; cursor: pointer; }
+.btn.danger { border-color: #ffb3b3; }
