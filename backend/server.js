@@ -1,17 +1,24 @@
+// backend/server.js
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 
 const { initDb } = require("./db");
+
 const { booksRouter } = require("./routes/books");
 const { authRouter } = require("./routes/auth");
 const { ordersRouter } = require("./routes/orders");
+const { profilesRouter } = require("./routes/profiles");
+const { imagesRouter } = require("./routes/images");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Create initial Admin/Manager via env vars (runs safely: only inserts if not exists)
+// ----------------------------------------------------
+// ADMIN_SEED_EMAIL / ADMIN_SEED_PASSWORD
+// MANAGER_SEED_EMAIL / MANAGER_SEED_PASSWORD   (role EMPLOYEE)
+// ----------------------------------------------------
 async function seedUsersIfRequested(db) {
   async function seedOne(email, password, name, role) {
     if (!email || !password) return;
@@ -57,16 +64,27 @@ async function start() {
   // Seed bootstrap users (optional, controlled by env vars)
   await seedUsersIfRequested(db);
 
+  // Health check
   app.get("/api/health", (req, res) => res.json({ ok: true, db: "ready" }));
 
+  // Debug helper: list tables
   app.get("/api/tables", async (req, res) => {
     const rows = await db.all("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
     res.json(rows);
   });
 
+  // ----------------------------------------------------
+  // Mount ALL APIs
+  // ----------------------------------------------------
   app.use("/api/books", booksRouter(db));
-  app.use("/api", authRouter(db)); // /api/register, /api/me, /api/admin/create-user
-  app.use("/api/orders", ordersRouter(db)); // /api/orders, /api/orders/my, /api/orders/users...
+  app.use("/api/images", imagesRouter(db));
+  app.use("/api/profiles", profilesRouter(db));
+
+  // Auth endpoints: /api/register, /api/me, /api/admin/create-user, etc.
+  app.use("/api", authRouter(db));
+
+  // Orders endpoints: /api/orders, /api/orders/my, /api/orders/users..., etc.
+  app.use("/api/orders", ordersRouter(db));
 
   app.listen(8080, () => console.log("API running on http://localhost:8080"));
 }

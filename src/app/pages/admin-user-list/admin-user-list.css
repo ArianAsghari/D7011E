@@ -1,0 +1,96 @@
+.page {
+  padding: 24px;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.loading {
+  margin-top: 10px;
+}
+
+.ok {
+  color: #148a2a;
+  margin: 6px 0 10px;
+}
+
+.err {
+  color: #c22;
+  margin: 6px 0 10px;
+}
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.tbl th,
+.tbl td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.tbl input,
+.tbl select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  outline: none;
+}
+
+.col-id {
+  width: 70px;
+}
+
+.col-role {
+  width: 160px;
+}
+
+.col-actions {
+  width: 220px;
+  text-align: right;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.empty {
+  color: #777;
+  padding: 18px;
+  text-align: center;
+}
+
+.btn {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  border-color: #2f6df6;
+  color: #2f6df6;
+}
+
+.btn.danger {
+  border-color: #ff4b4b;
+  color: #ff4b4b;
+}

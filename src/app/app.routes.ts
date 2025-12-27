@@ -10,10 +10,12 @@ import { CartComponent } from './pages/cart/cart';
 import { MyOrdersComponent } from './pages/my-orders/my-orders';
 
 import { AdminCreateUserComponent } from './pages/admin-create-user/admin-create-user';
+import { AdminUserListComponent } from './pages/admin-user-list/admin-user-list';
+
 import { ManagerBookListComponent } from './pages/manager-book-list/manager-book-list';
 import { ManagerBookEditComponent } from './pages/manager-book-edit/manager-book-edit';
 
-// NEW: create page
+// create page
 import { ManagerBookCreateComponent } from './pages/manager-book-create/manager-book-create';
 
 export const routes: Routes = [
@@ -28,19 +30,29 @@ export const routes: Routes = [
   { path: 'cart', component: CartComponent, canActivate: [authGuard] },
   { path: 'my-orders', component: MyOrdersComponent, canActivate: [authGuard] },
 
+  // --------------------
+  // ADMIN routes
+  // --------------------
   {
     path: 'admin/create-user',
     component: AdminCreateUserComponent,
     canActivate: [authGuard, roleGuard('ADMIN')],
   },
+  {
+    path: 'admin/users',
+    component: AdminUserListComponent,
+    canActivate: [authGuard, roleGuard('ADMIN')],
+  },
 
+  // --------------------
+  // MANAGER/EMPLOYEE routes
+  // --------------------
   {
     path: 'manager/books',
     component: ManagerBookListComponent,
     canActivate: [authGuard, roleGuard('EMPLOYEE', 'ADMIN')],
   },
 
-  // NEW route for create
   {
     path: 'manager/books/new',
     component: ManagerBookCreateComponent,

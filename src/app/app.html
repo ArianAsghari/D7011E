@@ -32,7 +32,7 @@
     <!-- Navigation Menu -->
     <nav class="nav-menu">
       <!-- Home Section -->
-      <div class="nav-section" *ngIf="user()?.role=='CUSTOMER'">
+      <div class="nav-section" *ngIf="user()?.role == 'CUSTOMER'">
         <div class="section-label">HOME</div>
         <a routerLink="/books" routerLinkActive="active" class="nav-link">
           <span class="nav-icon">📚</span>
@@ -44,23 +44,26 @@
       <!-- Account Section -->
       <div class="nav-section">
         <div class="section-label">ACCOUNT</div>
+
         <a *ngIf="!user()" routerLink="/login" routerLinkActive="active" class="nav-link">
           <span class="nav-icon">🔐</span>
           <span class="nav-text">Login</span>
           <span class="nav-arrow">›</span>
         </a>
+
         <a *ngIf="!user()" routerLink="/register" routerLinkActive="active" class="nav-link highlight">
           <span class="nav-icon">📝</span>
           <span class="nav-text">Register</span>
           <span class="nav-arrow">›</span>
         </a>
 
-        <a *ngIf="user()?.role=='CUSTOMER'" routerLink="/cart" routerLinkActive="active" class="nav-link">
+        <a *ngIf="user()?.role == 'CUSTOMER'" routerLink="/cart" routerLinkActive="active" class="nav-link">
           <span class="nav-icon">🛒</span>
           <span class="nav-text">Cart</span>
           <span class="nav-arrow">›</span>
         </a>
-        <a *ngIf="user()?.role=='CUSTOMER'" routerLink="/my-orders" routerLinkActive="active" class="nav-link">
+
+        <a *ngIf="user()?.role == 'CUSTOMER'" routerLink="/my-orders" routerLinkActive="active" class="nav-link">
           <span class="nav-icon">📦</span>
           <span class="nav-text">My Orders</span>
           <span class="nav-arrow">›</span>
@@ -70,8 +73,13 @@
       <!-- Manager Section -->
       <div class="nav-section" *ngIf="role() === 'EMPLOYEE' || role() === 'ADMIN'">
         <div class="section-label">MANAGEMENT</div>
-        <a *ngIf="role() === 'EMPLOYEE' || role() === 'ADMIN'"
-           routerLink="/manager/books" routerLinkActive="active" class="nav-link">
+
+        <a
+          *ngIf="role() === 'EMPLOYEE' || role() === 'ADMIN'"
+          routerLink="/manager/books"
+          routerLinkActive="active"
+          class="nav-link"
+        >
           <span class="nav-icon">📋</span>
           <span class="nav-text">Book Inventory</span>
           <span class="nav-arrow">›</span>
@@ -81,10 +89,27 @@
       <!-- Admin Section -->
       <div class="nav-section" *ngIf="role() === 'ADMIN'">
         <div class="section-label">ADMINISTRATION</div>
-        <a *ngIf="role() === 'ADMIN'"
-           routerLink="/admin/create-user" routerLinkActive="active" class="nav-link">
+
+        <a
+          *ngIf="role() === 'ADMIN'"
+          routerLink="/admin/create-user"
+          routerLinkActive="active"
+          class="nav-link"
+        >
           <span class="nav-icon">👥</span>
           <span class="nav-text">Create User</span>
+          <span class="nav-arrow">›</span>
+        </a>
+
+        <!--  Users list -->
+        <a
+          *ngIf="role() === 'ADMIN'"
+          routerLink="/admin/users"
+          routerLinkActive="active"
+          class="nav-link"
+        >
+          <span class="nav-icon">🧑‍💼</span>
+          <span class="nav-text">Users</span>
           <span class="nav-arrow">›</span>
         </a>
       </div>

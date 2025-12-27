@@ -31,7 +31,9 @@ export class AuthService {
   constructor() {
     const saved = localStorage.getItem(LS_ME);
     if (saved) {
-      try { this._user.set(JSON.parse(saved)); } catch {}
+      try {
+        this._user.set(JSON.parse(saved));
+      } catch {}
     }
   }
 
@@ -74,6 +76,25 @@ export class AuthService {
 
   adminCreateUser(email: string, password: string, name: string, role: Role) {
     return this.http.post(`${API}/admin/create-user`, { email, password, name, role });
+  }
+
+  // ----------------------------
+  // ADMIN: Users CRUD (via /api/orders/users)
+  // ----------------------------
+
+  // READ list
+  adminListUsers() {
+    return this.http.get<any[]>(`${API}/orders/users`);
+  }
+
+  // UPDATE
+  adminUpdateUser(id: number, name: string, role: Role) {
+    return this.http.put<any>(`${API}/orders/users/${id}`, { name, role });
+  }
+
+  // DELETE
+  adminDeleteUser(id: number) {
+    return this.http.delete<any>(`${API}/orders/users/${id}`);
   }
 }
 

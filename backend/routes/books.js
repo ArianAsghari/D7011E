@@ -1,3 +1,4 @@
+// backend/routes/books.js
 const express = require("express");
 const { requireAuth, requireAnyRole } = require("../middleware/auth");
 
@@ -10,16 +11,23 @@ function booksRouter(db) {
       const q = (req.query.q || "").trim();
       let rows;
 
-      // Optional search support
+      // Optional search support (WITH image_url)
       if (q) {
         rows = await db.all(
-          `SELECT * FROM books
-           WHERE name LIKE ? OR author LIKE ?
-           ORDER BY id DESC`,
+          `SELECT b.*, i.url AS image_url
+           FROM books b
+           LEFT JOIN images i ON i.id = b.image_id
+           WHERE b.name LIKE ? OR b.author LIKE ?
+           ORDER BY b.id DESC`,
           [`%${q}%`, `%${q}%`]
         );
       } else {
-        rows = await db.all("SELECT * FROM books ORDER BY id DESC");
+        rows = await db.all(
+          `SELECT b.*, i.url AS image_url
+           FROM books b
+           LEFT JOIN images i ON i.id = b.image_id
+           ORDER BY b.id DESC`
+        );
       }
 
       res.json(rows);
@@ -32,7 +40,13 @@ function booksRouter(db) {
   // PUBLIC: GET /api/books/:id
   router.get("/:id", async (req, res) => {
     try {
-      const row = await db.get("SELECT * FROM books WHERE id = ?", [req.params.id]);
+      const row = await db.get(
+        `SELECT b.*, i.url AS image_url
+         FROM books b
+         LEFT JOIN images i ON i.id = b.image_id
+         WHERE b.id = ?`,
+        [req.params.id]
+      );
       if (!row) return res.status(404).json({ error: "Not found" });
       res.json(row);
     } catch (err) {
@@ -65,7 +79,15 @@ function booksRouter(db) {
         [name, author, description, language, year, price, stock, image_id]
       );
 
-      const created = await db.get("SELECT * FROM books WHERE id = ?", [r.lastID]);
+      // Return created with image_url (optional but nice)
+      const created = await db.get(
+        `SELECT b.*, i.url AS image_url
+         FROM books b
+         LEFT JOIN images i ON i.id = b.image_id
+         WHERE b.id = ?`,
+        [r.lastID]
+      );
+
       res.status(201).json(created);
     } catch (err) {
       console.error("POST /api/books failed:", err);
@@ -101,7 +123,15 @@ function booksRouter(db) {
         ]
       );
 
-      const updated = await db.get("SELECT * FROM books WHERE id = ?", [id]);
+      // Return updated with image_url (optional but nice)
+      const updated = await db.get(
+        `SELECT b.*, i.url AS image_url
+         FROM books b
+         LEFT JOIN images i ON i.id = b.image_id
+         WHERE b.id = ?`,
+        [id]
+      );
+
       res.json(updated);
     } catch (err) {
       console.error("PUT /api/books/:id failed:", err);
@@ -109,7 +139,7 @@ function booksRouter(db) {
     }
   });
 
-  //EMPLOYEE/ADMIN: DELETE /api/books/:id  (delete)  <-- THIS IS THE FIX
+  // EMPLOYEE/ADMIN: DELETE /api/books/:id  (delete)
   router.delete(
     "/:id",
     requireAuth(db),

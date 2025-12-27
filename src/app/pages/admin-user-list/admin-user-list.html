@@ -1,0 +1,54 @@
+<div class="page">
+  <div class="top">
+    <h1>Users</h1>
+
+    <button class="btn" (click)="load()" [disabled]="loading">
+      Reload
+    </button>
+  </div>
+
+  <p class="ok" *ngIf="ok">{{ ok }}</p>
+  <p class="err" *ngIf="err">{{ err }}</p>
+
+  <div class="loading" *ngIf="loading">Loading...</div>
+
+  <table class="tbl" *ngIf="!loading">
+    <thead>
+      <tr>
+        <th class="col-id">ID</th>
+        <th>Email</th>
+        <th>Name</th>
+        <th class="col-role">Role</th>
+        <th class="col-actions">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let u of users">
+        <td>{{ u.id }}</td>
+        <td>{{ u.email }}</td>
+
+        <td>
+          <input [(ngModel)]="u._editName" placeholder="Name" />
+        </td>
+
+        <td>
+          <select [(ngModel)]="u._editRole">
+            <option value="CUSTOMER">CUSTOMER</option>
+            <option value="EMPLOYEE">EMPLOYEE</option>
+            <option value="ADMIN">ADMIN</option>
+          </select>
+        </td>
+
+        <td class="actions">
+          <button class="btn primary" (click)="save(u)">Save</button>
+          <button class="btn danger" (click)="remove(u)">Delete</button>
+        </td>
+      </tr>
+
+      <tr *ngIf="users.length === 0">
+        <td colspan="5" class="empty">No users found</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

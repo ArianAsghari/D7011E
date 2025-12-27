@@ -102,6 +102,21 @@ function profilesRouter(db) {
     }
   );
 
+  // ADMIN: update profile by userId  (THIS MAKES IT FULL CRUD)
+  router.put("/:userId", requireAuth(db), requireAnyRole("ADMIN"), async (req, res) => {
+    const userId = Number(req.params.userId);
+    if (!Number.isFinite(userId)) return res.status(400).json({ error: "Bad userId" });
+
+    const existing = await db.get("SELECT * FROM profiles WHERE user_id=?", [userId]);
+    if (!existing) return res.status(404).json({ error: "Not found" });
+
+    const phone = (req.body?.phone ?? existing.phone ?? null);
+    await db.run("UPDATE profiles SET phone=? WHERE user_id=?", [phone, userId]);
+
+    const updated = await db.get("SELECT * FROM profiles WHERE user_id=?", [userId]);
+    res.json(updated);
+  });
+
   // ADMIN: delete profile
   router.delete(
     "/:userId",

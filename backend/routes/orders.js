@@ -256,7 +256,121 @@ function ordersRouter(db) {
     }
   });
 
+
+  // Update single order item quantity (EMPLOYEE/ADMIN)
+  // PUT /api/orders/:orderId/items/:bookId
+  router.put(
+    "/:orderId/items/:bookId",
+    requireAuth(db),
+    requireAnyRole("EMPLOYEE", "ADMIN"),
+    async (req, res) => {
+      try {
+        const orderId = Number(req.params.orderId);
+        const bookId = Number(req.params.bookId);
+        const newQty = Number(req.body?.quantity);
+
+        if (!Number.isInteger(orderId) || orderId <= 0) {
+          return res.status(400).json({ error: "Bad orderId" });
+        }
+        if (!Number.isInteger(bookId) || bookId <= 0) {
+          return res.status(400).json({ error: "Bad bookId" });
+        }
+        if (!Number.isInteger(newQty) || newQty <= 0) {
+          return res.status(400).json({ error: "quantity must be > 0" });
+        }
+
+        // must exist
+        const existing = await db.get(
+          "SELECT quantity FROM order_items WHERE order_id=? AND book_id=?",
+          [orderId, bookId]
+        );
+        if (!existing) return res.status(404).json({ error: "Order item not found" });
+
+        const oldQty = Number(existing.quantity);
+        const diff = newQty - oldQty; // + => need more stock, - => return stock
+
+        if (diff > 0) {
+          const b = await db.get("SELECT stock FROM books WHERE id=?", [bookId]);
+          if (!b || b.stock < diff) return res.status(400).json({ error: "Not enough stock" });
+        }
+
+        await db.exec("BEGIN");
+        try {
+          await db.run(
+            "UPDATE order_items SET quantity=? WHERE order_id=? AND book_id=?",
+            [newQty, orderId, bookId]
+          );
+
+          if (diff !== 0) {
+            // diff > 0 reduces stock, diff < 0 increases stock
+            await db.run("UPDATE books SET stock = stock - ? WHERE id=?", [diff, bookId]);
+          }
+
+          await db.exec("COMMIT");
+        } catch (e) {
+          await db.exec("ROLLBACK");
+          throw e;
+        }
+
+        const updated = await db.get(
+          "SELECT * FROM order_items WHERE order_id=? AND book_id=?",
+          [orderId, bookId]
+        );
+        res.json(updated);
+      } catch (err) {
+        console.error("PUT /orders/:orderId/items/:bookId failed:", err);
+        res.status(500).json({ error: "Server error" });
+      }
+    }
+  );
+
+    // Delete single order item (EMPLOYEE/ADMIN)
+  // DELETE /api/orders/:orderId/items/:bookId
+  router.delete(
+    "/:orderId/items/:bookId",
+    requireAuth(db),
+    requireAnyRole("EMPLOYEE", "ADMIN"),
+    async (req, res) => {
+      try {
+        const orderId = Number(req.params.orderId);
+        const bookId = Number(req.params.bookId);
+
+        if (!Number.isInteger(orderId) || orderId <= 0) {
+          return res.status(400).json({ error: "Bad orderId" });
+        }
+        if (!Number.isInteger(bookId) || bookId <= 0) {
+          return res.status(400).json({ error: "Bad bookId" });
+        }
+
+        const existing = await db.get(
+          "SELECT quantity FROM order_items WHERE order_id=? AND book_id=?",
+          [orderId, bookId]
+        );
+        if (!existing) return res.status(404).json({ error: "Order item not found" });
+
+        const qty = Number(existing.quantity);
+
+        await db.exec("BEGIN");
+        try {
+          await db.run("DELETE FROM order_items WHERE order_id=? AND book_id=?", [orderId, bookId]);
+
+          // return stock
+          await db.run("UPDATE books SET stock = stock + ? WHERE id=?", [qty, bookId]);
+
+          await db.exec("COMMIT");
+        } catch (e) {
+          await db.exec("ROLLBACK");
+          throw e;
+        }
+
+        res.json({ ok: true });
+      } catch (err) {
+        console.error("DELETE /orders/:orderId/items/:bookId failed:", err);
+        res.status(500).json({ error: "Server error" });
+      }
+    }
+  );
+
   return router;
 }
-
 module.exports = { ordersRouter };
