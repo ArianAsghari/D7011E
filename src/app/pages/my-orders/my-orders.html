@@ -8,6 +8,6 @@
   <div class="item" *ngFor="let it of o.items">
     <div class="name">{{ it.name }} — {{ it.author }}</div>
     <div>Quantity: {{ it.quantity }}</div>
-    <div>Price: {{ ((it.unit_price ?? 0) * it.quantity) | number:'1.2-2' }} USD</div>
+    <div>Price: {{ (it.unit_price * it.quantity) | number:'1.2-2' }} USD</div>
   </div>
 </div>
