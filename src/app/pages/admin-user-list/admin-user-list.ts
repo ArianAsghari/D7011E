@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, DoCheck, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService, Role } from '../../services/auth';
@@ -21,26 +21,51 @@ type UserRow = {
   templateUrl: './admin-user-list.html',
   styleUrl: './admin-user-list.css',
 })
-export class AdminUserListComponent {
+export class AdminUserListComponent implements OnInit, DoCheck {
   private auth = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   users: UserRow[] = [];
   loading = false;
 
   ok = '';
   err = '';
+  
+  private hasLoaded = false;
+  private checkCount = 0;
 
   ngOnInit() {
+    console.log('AdminUserListComponent - ngOnInit');
     this.load();
   }
 
+  ngDoCheck() {
+    this.checkCount++;
+    console.log(`AdminUserListComponent - ngDoCheck #${this.checkCount}`);
+    
+    // If we haven't loaded data yet, try loading on every check
+    if (!this.hasLoaded && this.checkCount > 1) {
+      console.log('Attempting load in ngDoCheck');
+      this.load();
+    }
+    
+    // Force another check after a delay
+    if (this.checkCount === 1) {
+      setTimeout(() => {
+        this.cdr.detectChanges();
+      }, 100);
+    }
+  }
+
   load() {
+    console.log('load() called');
     this.ok = '';
     this.err = '';
     this.loading = true;
 
     this.auth.adminListUsers().subscribe({
       next: (rows: any[]) => {
+        console.log('Users loaded:', rows?.length || 0, 'items');
         this.users = (rows || []).map((u: any) => ({
           id: Number(u.id),
           email: String(u.email),
@@ -50,10 +75,14 @@ export class AdminUserListComponent {
           _editRole: u.role as Role,
         }));
         this.loading = false;
+        this.hasLoaded = true;
+        this.cdr.detectChanges(); // Force update
       },
       error: (e) => {
+        console.error('Load error:', e);
         this.err = e?.error?.error ?? 'Could not load users';
         this.loading = false;
+        this.hasLoaded = true;
       },
     });
   }
